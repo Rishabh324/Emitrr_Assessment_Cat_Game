@@ -4,40 +4,51 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Leaderboard from './Leaderboard';
 import {toast} from 'react-toastify';
+import { useScreen } from '../context/ScreenContext';
 
 const Game = () => {
     const { deck, drawnCards, gameStatus, username } = useSelector(state => state.game);
     const dispatch = useDispatch();
     const [userName, setUserName] = useState("");
+    const { isMobile } = useScreen();
+
     const [drawnCard, ...remainingDeck] = deck;
 
     const start = async () => {
         try{
             if(gameStatus==='won' || gameStatus==='lost'){
-                if(userName.length===0){
-                    setUserName(username);
-                }
-            }
-            if (userName) {
-                dispatch(setGameStatus('inProgress'));
-                dispatch(setUsername(userName));
-                handleStartGame();
-                const response = axios.post("http://localhost:5000/register", {
+                const response = await axios.post("http://localhost:5000/register", {
                     username,
                     score: 0,
                 });
+                dispatch(setGameStatus('inProgress'));
+                dispatch(setUsername(userName));
+                dispatch(startGame());
                 console.log(response);
-            } else {
-                alert("Please enter a username to start the game");
+            }
+            else if(gameStatus==='notStarted'){
+                if (userName) {
+                    dispatch(setUsername(userName));
+                    dispatch(startGame());
+                    console.log("here");
+                    const response = await axios.post("http://localhost:5000/register", {
+                        userName,
+                        score: 0,
+                    });
+                    console.log(response);
+                } else {
+                    alert("Please enter a username to start the game");
+                }
+            }
+            else {
+                dispatch(startGame());
+                dispatch(setGameStatus('notStarted'));
+                setUserName('');
             }
     
         } catch (error) {
         console.error(error);
         }
-    };
-
-    const handleStartGame = () => {
-        dispatch(startGame());
     };
 
     const handleDrawCard = () => {
@@ -53,23 +64,33 @@ const Game = () => {
     };
 
     useEffect(()=>{
-        if(gameStatus === 'won'){
-            axios.post('http://localhost:5000/score', {
-                Username: userName,
-                Score: gameStatus === 'won' ? 1 : 0
-            })
+        const scoring = async () => {
+            if(gameStatus === 'won' && userName){
+                console.log(userName);
+                const response = await axios.post('http://localhost:5000/score', {
+                    Username: userName,
+                    Score: gameStatus === 'won' ? 1 : 0
+                })
+                
+                console.log(response);
+                dispatch(setGameStatus('won'));
+            }
+            else if(gameStatus === 'lost'){
+                dispatch(setGameStatus('lost'));
+            }
+        }
 
-            dispatch(setGameStatus('won'));
-        }
-        else if(gameStatus === 'lost'){
-            dispatch(setGameStatus('lost'));
-        }
-    },[gameStatus, userName]);
+        scoring();
+    },[gameStatus]);
+
+    useEffect(() => {
+        setUserName(username);
+    }, []);
 
     return (
         <div className=''> 
             {gameStatus==='notStarted' ? (
-                <div className="flex gap-3 pt-2 items-center">
+                <div className="flex gap-3 pt-2 items-center justify-center">
                 <p className='font-semibold text-lg'>UserName: </p>
                 <input
                     type="text"
@@ -92,10 +113,10 @@ const Game = () => {
                             <button onClick={handleShuffle} className='px-4 py-2 bg-black text-white rounded-lg'>Shuffle Deck</button>
                         </div>
                         <p className='font-semibold text-xl'>Drawn Cards:</p>
-                        <div className='flex gap-3'>
+                        <div className='flex flex-wrap gap-3'>
                             {drawnCards.map((card, index) => (
-                                <div key={index} className='flex items-center bg-blue-200 py-20 px-8 border-4 rounded-lg shadow-2xl border-blue-600 w-fit min-w-[150px] text-center'>
-                                    <p className='text-2xl w-[150px] text-center'>{card}</p>
+                                <div key={index} className={`${!isMobile && 'px-8'} py-20 flex items-center bg-blue-200 border-4 rounded-lg shadow-2xl border-blue-600 w-fit min-w-[120px] text-center`}>
+                                    <p className='text-2xl w-[120px] text-center'>{card}</p>
                                 </div>
                             ))}
                         </div>

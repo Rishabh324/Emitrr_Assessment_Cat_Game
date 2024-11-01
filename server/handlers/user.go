@@ -17,8 +17,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	
 	_,err := db.RedisClient.Get(db.Ctx, user.Username).Result()
 	if err!=nil{
-		log.Println("User not found")
-		log.Println("Registering user")
 		if err := db.RegisterUser(user); err != nil {
 			http.Error(w, "Error registering user", http.StatusInternalServerError)
 			return

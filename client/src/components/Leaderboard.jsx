@@ -1,5 +1,3 @@
-// src/components/Leaderboard.js
-
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateLeaderboard } from '../redux/actions';
@@ -7,10 +5,7 @@ import axios from 'axios';
 
 const Leaderboard = () => {
     const { leaderboard } = useSelector(state => state.game);
-    console.log(leaderboard);
     const dispatch = useDispatch();
-
-    // leaderboard.sort((a, b) => b.score - a.score);
 
     const getLeaderboard = async () => {
         await axios.get('http://localhost:5000/leaderboard',{
