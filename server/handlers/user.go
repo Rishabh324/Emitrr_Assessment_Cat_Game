@@ -35,10 +35,9 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
         Score:    user.Score,
     }
 
-	log.Printf("Registering user: %+v\n", newUser)
-
 	err = db.RegisterUser(newUser)
     if err != nil {
+		log.Printf("Error registering user: %v\n", err)
         http.Error(w, "Error registering user", http.StatusInternalServerError)
         return
     }

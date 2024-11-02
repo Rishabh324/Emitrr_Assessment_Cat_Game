@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"os"
 	"server/models"
 	"server/utils"
 	"sort"
@@ -20,14 +21,15 @@ var (
 
 func InitRedis() {
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
+		Addr:     os.Getenv("DATABASE"),
+		Password: os.Getenv("PASSWORD"),
 		DB:       0,
 	})
 
 	_, err := RedisClient.Ping(Ctx).Result()
 	if err != nil {
 		log.Fatalf("Could not connect to Redis: %v", err)
+		return
 	}
 
 	log.Println("Connected to Redis")
