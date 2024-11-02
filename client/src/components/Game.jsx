@@ -90,7 +90,8 @@ const Game = () => {
     },[gameStatus]);
 
     useEffect(() => {
-        setUserName(username, password);
+        setUserName(username);
+        setPassWord(password);
     }, []);
 
     return (
