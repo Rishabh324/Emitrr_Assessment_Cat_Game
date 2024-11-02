@@ -18,9 +18,15 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	storedPassword, _ := db.GetUserPassword(user.Username)
 	if len(storedPassword) != 0 {
-        w.WriteHeader(http.StatusIMUsed)
-        w.Write([]byte("User already exists"))
-        return
+		
+		if !utils.CheckPasswordHash(user.Password, storedPassword) {
+			w.WriteHeader(http.StatusIMUsed)
+			w.Write([]byte("User already exists"))
+			return
+		}
+        
+		w.WriteHeader(http.StatusOK)
+		return 
     }
 
 	hashedPassword, err := utils.HashPassword(user.Password)
