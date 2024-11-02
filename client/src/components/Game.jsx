@@ -71,8 +71,7 @@ const Game = () => {
 
     useEffect(()=>{
         const scoring = async () => {
-            if(gameStatus === 'won' && userName){
-                console.log(userName);
+            if(gameStatus === 'won' && userName && passWord){
                 const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/score`, {
                     Username: userName,
                     Password: passWord,
@@ -91,7 +90,7 @@ const Game = () => {
     },[gameStatus]);
 
     useEffect(() => {
-        setUserName(username, password);
+        setUsername(username, password);
     }, []);
 
     return (
@@ -111,7 +110,7 @@ const Game = () => {
                     <div>
                         <p className='font-semibold text-lg'>Password: </p>
                         <input
-                            type="text"
+                            type="password"
                             placeholder="Enter Password"
                             className="px-4 py-2 border-gray-300 border-2 rounded-lg"
                             value={passWord}
