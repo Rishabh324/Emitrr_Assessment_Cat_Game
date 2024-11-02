@@ -17,14 +17,15 @@ const Game = () => {
 
     const start = async () => {
         try{
+            console.log(gameStatus, userName, passWord, username, password);
             if(gameStatus==='won' || gameStatus==='lost'){
                 dispatch(setUsername(userName, passWord));
+                dispatch(startGame());
                 const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/register`, {
                     Username: username,
                     Password: password,
                     Score: 0,
                 });
-                dispatch(startGame());
                 console.log(response);
             }
             else if(gameStatus==='notStarted'){
