@@ -18,7 +18,7 @@ const Game = () => {
     const start = async () => {
         try{
             if(gameStatus==='won' || gameStatus==='lost'){
-                const response = await axios.post("http://localhost:5000/register", {
+                const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/register`, {
                     Username: username,
                     Password: password,
                     Score: 0,
@@ -31,7 +31,7 @@ const Game = () => {
             else if(gameStatus==='notStarted'){
                 if (userName) {
                     console.log("here");
-                    const response = await axios.post("http://localhost:5000/register", {
+                    const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/register`, {
                         Username: userName,
                         Password: passWord,
                         Score: 0,
@@ -73,7 +73,7 @@ const Game = () => {
         const scoring = async () => {
             if(gameStatus === 'won' && userName){
                 console.log(userName);
-                const response = await axios.post('http://localhost:5000/score', {
+                const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/score`, {
                     Username: userName,
                     Password: passWord,
                     Score: gameStatus === 'won' ? 1 : 0

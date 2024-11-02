@@ -8,7 +8,7 @@ const Leaderboard = () => {
     const dispatch = useDispatch();
 
     const getLeaderboard = async () => {
-        await axios.get('http://localhost:5000/leaderboard',{
+        await axios.get(`${import.meta.env.VITE_REACT_APP_BASEURL}/leaderboard`,{
             headers: {
                 "Access-Control-Allow-Headers": "Origin, X-Api-Key, X-Requested-With, Access-Control-Allow-Headers, Content-Type, Accept, Authorization, Access-Control-Allow-Origin",
                 "Access-Control-Allow-Origin": "*"
