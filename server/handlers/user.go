@@ -12,7 +12,6 @@ import (
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Printf("Error decoding user data: %v\n", err)
 		http.Error(w, "Invalid user data", http.StatusBadRequest)
 		return
 	}
@@ -36,9 +35,10 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
         Score:    user.Score,
     }
 
+	log.Printf("Registering user: %+v\n", newUser)
+
 	err = db.RegisterUser(newUser)
     if err != nil {
-		log.Printf("Error registering user: %v\n", err)
         http.Error(w, "Error registering user", http.StatusInternalServerError)
         return
     }
