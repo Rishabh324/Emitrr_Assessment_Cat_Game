@@ -7,6 +7,7 @@ const initialState = {
     gameStatus: 'notStarted',
     defuseAvailable: false,
     username: '',
+    password: '',
     leaderboard: [],
     drawnCard: ''
 };
@@ -14,7 +15,7 @@ const initialState = {
 function gameReducer(state = initialState, action) {
     switch (action.type) {
         case SET_USERNAME:
-            return { ...state, username: action.payload };
+            return { ...state, username: action.payload.username, password: action.payload.password };
 
         case START_GAME:
             {const initialDeck = ['Cat 😼', 'Defuse 🙅‍♂️', 'Shuffle 🔀', 'Exploding Kitten 💣', 'Cat 😼'].sort(() => Math.random() - 0.5);
@@ -24,7 +25,6 @@ function gameReducer(state = initialState, action) {
             {if (state.deck.length === 0 || state.gameStatus !== 'inProgress') return state;
             const [drawnCard, ...remainingDeck] = state.deck;
             
-            console.log(drawnCard);
             if (drawnCard === 'Exploding Kitten 💣' && !state.defuseAvailable) {
                 return { ...state, gameStatus: 'lost' };
             }

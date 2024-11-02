@@ -3,8 +3,11 @@ package db
 
 import (
 	"context"
+	"errors"
 	"log"
 	"server/models"
+	"server/utils"
+	"sort"
 	"strconv"
 
 	"github.com/go-redis/redis/v8"
@@ -15,11 +18,11 @@ var (
 	Ctx         = context.Background()
 )
 
-func InitRedis()() {
+func InitRedis() {
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr: "redis-16607.c305.ap-south-1-1.ec2.redns.redis-cloud.com:16607",
-		Password: "HMnGcnSg6OyhzheGZzBPaVUL5a4KwODf", // no password set
-   		DB:       0,
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,
 	})
 
 	_, err := RedisClient.Ping(Ctx).Result()
@@ -31,13 +34,28 @@ func InitRedis()() {
 }
 
 func RegisterUser(user models.User) error {
-	return RedisClient.Set(Ctx, user.Username, 0, 0).Err()
+	return RedisClient.HSet(Ctx, user.Username, map[string]interface{}{
+		"Password": user.Password,
+		"Score":    user.Score,
+	}).Err()
 }
 
-func UpdateUserScore(username string) error {
-	res, err := RedisClient.Get(Ctx, username).Result()
-	log.Println(res,err)
-	return RedisClient.Incr(Ctx, username).Err()
+func UpdateUserScore(username, password string) error {
+	storedPassword, err := GetUserPassword(username)
+	if err != nil {
+		return errors.New("user not found or error retrieving password")
+	}
+
+	if !utils.CheckPasswordHash(password, storedPassword) {
+		return errors.New("invalid password")
+	}
+
+	_, err = RedisClient.HIncrBy(Ctx, username, "Score", 1).Result()
+	if err != nil {
+		return errors.New("error updating score")
+	}
+
+	return nil
 }
 
 func FetchLeaderboard() ([]models.User, error) {
@@ -45,14 +63,30 @@ func FetchLeaderboard() ([]models.User, error) {
 
 	iter := RedisClient.Scan(Ctx, 0, "*", 0).Iterator()
 	for iter.Next(Ctx) {
-		username := iter.Val()
-		score, err := RedisClient.Get(Ctx, username).Result()
+		userKey := iter.Val()
+
+		userData, err := RedisClient.HMGet(Ctx, userKey, "Password", "Score").Result()
 		if err != nil {
 			return nil, err
 		}
-		scoreInt, _ := strconv.Atoi(score)
-		leaderboard = append(leaderboard, models.User{Username: username, Score: scoreInt})
+
+		password := userData[0].(string)
+		score, err := strconv.Atoi(userData[1].(string))
+		if err != nil {
+			return nil, err
+		}
+
+		leaderboard = append(leaderboard, models.User{Username: userKey, Password: password, Score: score})
 	}
 
+	// Sort leaderboard in descending order by score
+	sort.Slice(leaderboard, func(i, j int) bool {
+		return leaderboard[i].Score > leaderboard[j].Score
+	})
+
 	return leaderboard, nil
+}
+
+func GetUserPassword(username string) (string, error) {
+	return RedisClient.HGet(Ctx, username, "Password").Result()
 }

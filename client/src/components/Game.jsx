@@ -7,9 +7,10 @@ import {toast} from 'react-toastify';
 import { useScreen } from '../context/ScreenContext';
 
 const Game = () => {
-    const { deck, drawnCards, gameStatus, username } = useSelector(state => state.game);
+    const { deck, drawnCards, gameStatus, username, password } = useSelector(state => state.game);
     const dispatch = useDispatch();
     const [userName, setUserName] = useState("");
+    const [passWord, setPassWord] = useState("");
     const { isMobile } = useScreen();
 
     const [drawnCard, ...remainingDeck] = deck;
@@ -18,24 +19,29 @@ const Game = () => {
         try{
             if(gameStatus==='won' || gameStatus==='lost'){
                 const response = await axios.post("http://localhost:5000/register", {
-                    username,
-                    score: 0,
+                    Username: username,
+                    Password: password,
+                    Score: 0,
                 });
                 dispatch(setGameStatus('inProgress'));
-                dispatch(setUsername(userName));
+                dispatch(setUsername(userName, passWord));
                 dispatch(startGame());
                 console.log(response);
             }
             else if(gameStatus==='notStarted'){
                 if (userName) {
-                    dispatch(setUsername(userName));
-                    dispatch(startGame());
                     console.log("here");
                     const response = await axios.post("http://localhost:5000/register", {
-                        userName,
-                        score: 0,
+                        Username: userName,
+                        Password: passWord,
+                        Score: 0,
                     });
-                    console.log(response);
+                    if(response.data==='User already exists' || response.status===226){
+                        toast.error('UserName exists. Please enter a different username');
+                        return ;
+                    }
+                    dispatch(setUsername(userName, passWord));
+                    dispatch(startGame());
                 } else {
                     alert("Please enter a username to start the game");
                 }
@@ -43,7 +49,7 @@ const Game = () => {
             else {
                 dispatch(startGame());
                 dispatch(setGameStatus('notStarted'));
-                setUserName('');
+                setUserName('', '');
             }
     
         } catch (error) {
@@ -69,6 +75,7 @@ const Game = () => {
                 console.log(userName);
                 const response = await axios.post('http://localhost:5000/score', {
                     Username: userName,
+                    Password: passWord,
                     Score: gameStatus === 'won' ? 1 : 0
                 })
                 
@@ -84,22 +91,34 @@ const Game = () => {
     },[gameStatus]);
 
     useEffect(() => {
-        setUserName(username);
+        setUserName(username, password);
     }, []);
 
     return (
         <div className=''> 
             {gameStatus==='notStarted' ? (
-                <div className="flex gap-3 pt-2 items-center justify-center">
-                <p className='font-semibold text-lg'>UserName: </p>
-                <input
-                    type="text"
-                    placeholder="Enter Username"
-                    className="px-4 py-2 border-gray-300 border-2 rounded-lg"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                />
-                <button onClick={()=>start()} className="px-4 py-2 bg-black text-white rounded-lg">Start Game</button>
+                <div className="flex flex-col gap-3 pt-2 items-center justify-center">
+                    <div>
+                        <p className='font-semibold text-lg'>UserName: </p>
+                        <input
+                            type="text"
+                            placeholder="Enter Username"
+                            className="px-4 py-2 border-gray-300 border-2 rounded-lg"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <p className='font-semibold text-lg'>Password: </p>
+                        <input
+                            type="text"
+                            placeholder="Enter Password"
+                            className="px-4 py-2 border-gray-300 border-2 rounded-lg"
+                            value={passWord}
+                            onChange={(e) => setPassWord(e.target.value)}
+                        />
+                    </div>
+                    <button onClick={()=>start()} className="px-4 py-2 bg-black text-white rounded-lg">Start Game</button>
                 </div>
             ) : (
             <div>

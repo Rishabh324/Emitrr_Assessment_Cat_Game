@@ -9,5 +9,5 @@ export const startGame = () => ({ type: START_GAME });
 export const drawCard = () => ({ type: DRAW_CARD });
 export const shuffleDeck = () => ({ type: SHUFFLE_DECK });
 export const setGameStatus = (status) => ({ type: GAME_STATUS, payload: status });
-export const setUsername = (username) => ({ type: SET_USERNAME, payload: username });
+export const setUsername = (username, password) => ({ type: SET_USERNAME, payload: {username, password}, });
 export const updateLeaderboard = (leaderboard) => ({ type: UPDATE_LEADERBOARD, payload: leaderboard });

@@ -36,8 +36,8 @@ const Leaderboard = () => {
                 {leaderboard.map((user, index) => (
                     <div key={index} className='grid grid-cols-12'>
                         <p className='col-span-2 border border-black'>{index+1}.</p>
-                        <p className='col-span-5 border border-black font-medium'>{user.username}</p>
-                        <p className='col-span-5 border border-black font-medium'>{user.score}</p>
+                        <p className='col-span-5 border border-black font-medium'>{user.Username}</p>
+                        <p className='col-span-5 border border-black font-medium'>{user.Score}</p>
                     </div>
                 ))}
             </div>
