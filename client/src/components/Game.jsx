@@ -18,24 +18,23 @@ const Game = () => {
     const start = async () => {
         try{
             if(gameStatus==='won' || gameStatus==='lost'){
+                dispatch(setUsername(userName, passWord));
                 const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/register`, {
                     Username: username,
                     Password: password,
                     Score: 0,
                 });
-                dispatch(setGameStatus('inProgress'));
-                dispatch(setUsername(userName, passWord));
                 dispatch(startGame());
                 console.log(response);
             }
             else if(gameStatus==='notStarted'){
-                if (userName) {
-                    console.log("here");
+                if (userName && passWord) {
                     const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/register`, {
                         Username: userName,
                         Password: passWord,
                         Score: 0,
                     });
+
                     if(response.data==='User already exists' || response.status===226){
                         toast.error('UserName exists. Please enter a different username');
                         return ;
@@ -53,7 +52,7 @@ const Game = () => {
             }
     
         } catch (error) {
-        console.error(error);
+            console.error(error);
         }
     };
 
