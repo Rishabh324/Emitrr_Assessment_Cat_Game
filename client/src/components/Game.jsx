@@ -17,16 +17,14 @@ const Game = () => {
 
     const start = async () => {
         try{
-            console.log(gameStatus, userName, passWord, username, password);
             if(gameStatus==='won' || gameStatus==='lost'){
                 dispatch(setUsername(userName, passWord));
                 dispatch(startGame());
-                const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/register`, {
+                await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/register`, {
                     Username: username,
                     Password: password,
                     Score: 0,
                 });
-                console.log(response);
             }
             else if(gameStatus==='notStarted'){
                 if (userName && passWord) {
@@ -72,13 +70,12 @@ const Game = () => {
     useEffect(()=>{
         const scoring = async () => {
             if(gameStatus === 'won' && userName && passWord){
-                const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/score`, {
+                await axios.post(`${import.meta.env.VITE_REACT_APP_BASEURL}/score`, {
                     Username: userName,
                     Password: passWord,
-                    Score: gameStatus === 'won' ? 1 : 0
+                    Score: 0
                 })
                 
-                console.log(response);
                 dispatch(setGameStatus('won'));
             }
             else if(gameStatus === 'lost'){

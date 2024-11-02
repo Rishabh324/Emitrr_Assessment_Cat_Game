@@ -1,4 +1,3 @@
-// db/redis.go (same file)
 package db
 
 import (
